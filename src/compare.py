@@ -61,7 +61,7 @@ def main(args):
             facenet.load_model(args.model_dir, meta_file, ckpt_file)
     
             # Get input and output tensors
-            #images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
+#           images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
             images_placeholder = tf.get_default_graph().get_tensor_by_name("image_batch:0")
             embeddings = tf.get_default_graph().get_tensor_by_name("embeddings:0")
             phase_train_placeholder = tf.get_default_graph().get_tensor_by_name("phase_train:0")
@@ -70,16 +70,20 @@ def main(args):
             feed_dict_input = {images_placeholder: images, phase_train_placeholder: False}
             emb = sess.run(embeddings, feed_dict=feed_dict_input)
 
-            nrof_input_images = len(os.listdir(os.path.expanduser(args.input_dir)))
-            nrof_target_images = len(os.listdir(os.path.expanduser(args.target_dir)))
+            #nrof_input_images = len(os.listdir(os.path.expanduser(args.input_dir)))
+            #nrof_target_images = len(os.listdir(os.path.expanduser(args.target_dir)))
+
+            input_dataset = facenet.get_folder(args.input_dir)
+            target_dataset = facenet.get_folder(args.target_dir)
+
             print('Input Images:')
             for i in range(nrof_input_images):
-                print('%1d: %s' % (i, args.input_dir[i]))
+                print('%1d: %s' % (i, os.path.expanduser(input_dataset[i])))
             print('')
 
             print('Compare Images:')
-            for i in range(nrof_input_images, nrof_target_images):
-                print('%1d: %s' % (i, args.target_dir[i-nrof_input_images]))
+            for i in range(nrof_input_images, nrof_target_images+nrof_input_images):
+                print('%1d: %s' % (i, os.path.expanduser(target_dataset[i-nrof_input_images])))
             print('')
 
             # Print distance matrix
@@ -88,10 +92,10 @@ def main(args):
             for i in range(nrof_input_images):
                 print('    %1d     ' % i, end='')
             print('')
-            for i in range(nrof_input_images):
+            for i in range(nrof_input_images, nrof_target_images):
                 print(emb[i, :])
                 print('%1d  ' % i, end='')
-                for j in range(nrof_target_images):
+                for j in range(nrof_input_images):
                     print(emb[j, :])
                     dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
                     print('  %1.4f  ' % dist, end='')
