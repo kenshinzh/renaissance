@@ -342,6 +342,20 @@ def get_dataset(paths):
   
     return dataset
 
+
+def get_folder(paths):
+    folder = []
+    for path in paths.split(':'):
+        path_exp = os.path.expanduser(path)
+        classes = os.listdir(path_exp)
+        nrof_classes = len(classes)
+        for i in range(nrof_classes):
+            classes_name = classes[i]
+            image_paths = os.path.join(path_exp, classes_name)
+            folder.append(image_paths)
+#            folder[i] = os.path.join(path_exp, classes_name)
+    return folder
+
 def split_dataset(dataset, split_ratio, mode):
     if mode=='SPLIT_CLASSES':
         nrof_classes = len(dataset)
