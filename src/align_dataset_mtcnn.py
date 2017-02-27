@@ -54,7 +54,7 @@ def main(args):
         with sess.as_default():
             pnet, rnet, onet = detect_face.create_mtcnn(sess, '../data/')
     
-    minsize = 20 # minimum size of face
+    minsize = 80 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
     factor = 0.709 # scale factor
 

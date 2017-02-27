@@ -93,10 +93,10 @@ def main(args):
                 print('    %1d     ' % i, end='')
             print('')
             for i in range(nrof_input_images, nrof_target_images):
-                print(emb[i, :])
+                # print(emb[i, :])
                 print('%1d  ' % i, end='')
                 for j in range(nrof_input_images):
-                    print(emb[j, :])
+                    # print(emb[j, :])
                     dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
                     print('  %1.4f  ' % dist, end='')
                 print('')
