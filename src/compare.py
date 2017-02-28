@@ -92,11 +92,11 @@ def main(args):
             for i in range(nrof_input_images):
                 print('    %1d     ' % i, end='')
             print('')
-            for i in range(nrof_input_images, nrof_target_images):
-                # print(emb[i, :])
-                print('%1d  ' % i, end='')
+            for i in range(nrof_input_images, nrof_target_images+nrof_input_images):
+                # print(emb[i, :]) Target_image_embeddings
+                print('%1d       ' % i, end='')
                 for j in range(nrof_input_images):
-                    # print(emb[j, :])
+                    # print(emb[j, :]) Input_Image_embeddings
                     dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
                     print('  %1.4f  ' % dist, end='')
                 print('')
@@ -109,7 +109,7 @@ def load_data(target_dir, image_size):
     img_list = [None] * nrof_samples
 
     for i in xrange(nrof_samples):
-        print(target_dataset[i])
+        # print(target_dataset[i])
         img = misc.imread(os.path.expanduser(target_dataset[i]))
         aligned = misc.imresize(img, (image_size, image_size), interp='bilinear')
         prewhitened = facenet.prewhiten(aligned)
@@ -129,7 +129,7 @@ def load_and_align_data_dlib(input_dir, image_size, dlib_face_predictor, center_
     img_list = [None] * nrof_samples
 
     for i in xrange(nrof_samples):
-        print(input_dataset[i])
+        # print(input_dataset[i])
         img = misc.imread(os.path.expanduser(input_dataset[i]))
         if img.ndim == 2:
             img = facenet.to_rgb(img)

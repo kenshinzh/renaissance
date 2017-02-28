@@ -339,7 +339,6 @@ def get_dataset(paths):
                 images = os.listdir(facedir)
                 image_paths = [os.path.join(facedir,img) for img in images]
                 dataset.append(ImageClass(class_name, image_paths))
-  
     return dataset
 
 
