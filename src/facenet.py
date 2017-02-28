@@ -28,17 +28,17 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-from subprocess import Popen, PIPE
-import tensorflow as tf
-from tensorflow.python.framework import ops
-import numpy as np
-from scipy import misc
-#import matplotlib.pyplot as plt
-from sklearn.model_selection import KFold
-#from sklearn.cross_validation import KFold
-from scipy import interpolate
-from tensorflow.python.training import training
 import random
+from subprocess import Popen, PIPE
+
+import numpy as np
+import tensorflow as tf
+from scipy import interpolate
+from scipy import misc
+from sklearn.model_selection import KFold
+from tensorflow.python.framework import ops
+from tensorflow.python.training import training
+
 
 #import h5py
 
@@ -342,18 +342,18 @@ def get_dataset(paths):
     return dataset
 
 
-def get_folder(paths):
-    folder = []
+def get_folder_file(paths):
+    file_lists = []
     for path in paths.split(':'):
         path_exp = os.path.expanduser(path)
-        classes = os.listdir(path_exp)
-        nrof_classes = len(classes)
-        for i in range(nrof_classes):
-            classes_name = classes[i]
-            image_paths = os.path.join(path_exp, classes_name)
-            folder.append(image_paths)
+        list = os.listdir(path_exp)
+        nrof_lists = len(list)
+        for i in range(nrof_lists):
+            f_name = list[i]
+            image_paths = os.path.join(path_exp, f_name)
+            file_lists.append(image_paths)
 #            folder[i] = os.path.join(path_exp, classes_name)
-    return folder
+    return file_lists
 
 def split_dataset(dataset, split_ratio, mode):
     if mode=='SPLIT_CLASSES':
