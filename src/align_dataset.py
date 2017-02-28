@@ -91,10 +91,10 @@ def main(args):
                                               skipMulti=False, scale=scale)
                             filename = os.path.splitext(os.path.split(folder[i])[1])[0]
                             output_filename = os.path.join(output_folder_dir, filename + '_' + str(j).zfill(4) + '.png')
-                            print(folder[i])
+                            # print(folder[i])
                             nrof_successfully_aligned += 1
                             misc.imsave(output_filename, aligned)
-                            print(bb)
+                            # print(bb)
                             text_file.write('%s %s \n' % (output_filename, bb))
 
                         # aligned = align.align(args.image_size, img, landmarkIndices=landmarkIndices,
