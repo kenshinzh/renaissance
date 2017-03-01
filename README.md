@@ -20,6 +20,8 @@ Tensorflow R1
 
 sklearn
 
+dlib
+
 pil
 
 and other relative dependency
@@ -42,11 +44,12 @@ pip install sklearn
 python facescrub_download.py
 ```
 
-### Align Images
+### Align face images
 ```
 python align_dataset_mtcnn.py ~/datasets/lfw/ ~/datasets/lfw_mtcnnalign_160 --image_size 160 --margin 32
 python align_dataset_mtcnn.py ~/datasets/facescrub/ ~/datasets/facescrub_mtcnnpy_182 --image_size 182 --margin 44
 ```
+We use 2 different method for face alignment, dlib is faster than mtcnn, while mtcnn is much accrate than dlib. If you have a power server, then mtcnn is the best approch for face alignment
 
 ### Training classifier
 ```
@@ -61,7 +64,12 @@ For example:
 ~/tmp/models/facenet/20170223-125024/model-20170223-125024.ckpt-0
 
 
-### Image Embedding
+### Face compare
+We use L2 distance of face embeddings(after runing the models) for face comparerasion. It support folder to folder comparerasion.
+```
+python compare.py model_dir input_dir target_dir
+```
+Default we use dlib algorithm for align, but we can change to mtcnn simply add the parameter "--align_method mtcnn".
 
 
 ### Markdown
