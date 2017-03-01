@@ -41,9 +41,6 @@ files = ['./vgg_face_datasets.txt']
 RESULT_ROOT = './vgg_face_datasets'
 if not os.path.exists(RESULT_ROOT):
     os.mkdir(RESULT_ROOT)
-DOWNLOAD_ROOT = './download_vgg_datasets'
-if not os.path.exists(DOWNLOAD_ROOT):
-    os.mkdir(DOWNLOAD_ROOT)
 image_size = 192
 steps = 250
 

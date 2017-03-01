@@ -42,6 +42,7 @@ pip install sklearn
 ### Download Training Data
 ```
 python facescrub_download.py
+python download_vgg_face_dataset.py
 ```
 
 ### Align face images
@@ -65,7 +66,7 @@ For example:
 
 
 ### Face compare
-We use L2 distance of face embeddings(after runing the models) for face comparerasion. It support folder to folder comparerasion.
+We use L2 distance of face embeddings(after runing the models) for face comparison. It support folder to folder comparerasion.
 ```
 python compare.py model_dir input_dir target_dir
 ```
