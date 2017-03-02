@@ -27,20 +27,22 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datetime import datetime
-import os.path
-import time
-import sys
-import random
-import tensorflow as tf
-import numpy as np
-import importlib
 import argparse
+import importlib
+import os.path
+import random
+import sys
+import time
+from datetime import datetime
+
 import facenet
+import h5py
 import lfw
+import numpy as np
+import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.python.ops import data_flow_ops
-import h5py
+
 
 def main(args):
   
@@ -55,7 +57,7 @@ def main(args):
         os.makedirs(model_dir)
 
     # Store some git revision info in a text file in the log directory
-    src_path,_ = os.path.split(os.path.realpath(__file__))
+    # src_path,_ = os.path.split(os.path.realpath(__file__))
     # facenet.store_revision_info(src_path, log_dir, ' '.join(sys.argv))
 
     np.random.seed(seed=args.seed)

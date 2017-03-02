@@ -112,7 +112,7 @@ def main(args):
                 for j in range(nrof_input_images):
                     # print(emb[j, :]) Input_Image_embeddings
                     dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
-                    print('  %1.4f  ' % dist, end='')
+                    print('  %1.5f  ' % dist, end='')
                 print('')
 
 

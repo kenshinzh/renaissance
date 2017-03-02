@@ -26,6 +26,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import hashlib
 import multiprocessing
 import os
 import socket
@@ -37,12 +38,13 @@ from scipy import misc
 from skimage import io
 
 socket.setdefaulttimeout(30)
-files = ['./vgg_face_datasets.txt']
+# files = ['/Users/Kevin/tmp/datasets/data/vgg_face_datasets.txt']
+# files = ['/mnt/datasets/vgg_face_datasets.txt']
 RESULT_ROOT = './vgg_face_datasets'
 if not os.path.exists(RESULT_ROOT):
     os.mkdir(RESULT_ROOT)
 image_size = 192
-steps = 250
+
 
 def download((names, urls, bboxes)):
     """
@@ -53,13 +55,14 @@ def download((names, urls, bboxes)):
     assert(len(names) == len(bboxes))
 
     # download using external wget
-    CMD = 'wget -c -t 1 -T 3 "%s" -O "%s"'
+    # CMD = 'wget -c -t 1 -T 3 "%s" -O "%s"'
     for i in range(len(names)):
         directory = os.path.join(RESULT_ROOT, names[i])
         if not os.path.exists(directory):
             os.mkdir(directory)
-        fname = names[i] + '_' + str(i).zfill(4) + '.jpg'
-        errname = names[i] + '_' + str(i).zfill(4) + '.err'
+        #fname = names[i] + '_' + str(i).zfill(4) + '.jpg'
+        fname = hashlib.sha1(urls[i]).hexdigest() + '.jpg'
+        errname = hashlib.sha1(urls[i]).hexdigest() + '.err'
         image_path = os.path.join(directory, fname)
         error_path = os.path.join(directory, errname)
         print("downloading", image_path)
@@ -69,7 +72,7 @@ def download((names, urls, bboxes)):
         else:
             if not os.path.exists(image_path) and not os.path.exists(error_path):
                 try:
-                    img = io.imread(urls[i], mode='RGB')
+                    img = io.imread(urls[i],mode='RGB')
                 except (HTTPException, HTTPError, URLError, IOError, ValueError, IndexError, OSError) as e:
                     err_message = '{}: {}'.format(urls[i], e)
                     save_error_message_file(error_path, err_message)
@@ -138,17 +141,10 @@ if __name__ == '__main__':
                 task_urls = [urls[i]]
                 task_bboxes = [bboxes[i]]
                 last_name = names[i]
-            if i != 0 and i % steps == 0:
-                pool_size = multiprocessing.cpu_count()
-                pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=2)
-                pool.map(download, tasks)
-                pool.close()
-                pool.join()
-                tasks = []
-            tasks.append((task_names, task_urls, task_bboxes))
+        tasks.append((task_names, task_urls, task_bboxes))
 
-        pool_size = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=2)
-        pool.map(download, tasks)
-        pool.close()
-        pool.join()
+    pool_size = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=pool_size, maxtasksperchild=2)
+    pool.map(download, tasks)
+    pool.close()
+    pool.join()
