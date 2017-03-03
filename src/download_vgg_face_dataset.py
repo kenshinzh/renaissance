@@ -39,7 +39,7 @@ from skimage import io
 
 socket.setdefaulttimeout(30)
 # files = ['/Users/Kevin/tmp/datasets/data/vgg_face_datasets.txt']
-# files = ['/mnt/datasets/vgg_face_datasets.txt']
+files = ['/mnt/datasets/vgg_face_datasets.txt']
 RESULT_ROOT = './vgg_face_datasets'
 if not os.path.exists(RESULT_ROOT):
     os.mkdir(RESULT_ROOT)
