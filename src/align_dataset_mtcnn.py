@@ -31,22 +31,20 @@ import sys
 import os
 import argparse
 import tensorflow as tf
-import shutil
 import numpy as np
 import facenet
 import detect_face
+import random
 
 def main(args):
   
     output_dir = os.path.expanduser(args.output_dir)
-    input_dir = os.path.expanduser(args.input_dir)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     # Store some git revision info in a text file in the log directory
-    # src_path,_ = os.path.split(os.path.realpath(__file__))
+    src_path,_ = os.path.split(os.path.realpath(__file__))
     # facenet.store_revision_info(src_path, output_dir, ' '.join(sys.argv))
-    # dataset = facenet.get_folder(args.input_dir)
-    folder = facenet.get_folder(input_dir)
+    dataset = facenet.get_dataset(args.input_dir)
     
     print('Creating networks and loading parameters')
     
@@ -56,7 +54,7 @@ def main(args):
         with sess.as_default():
             pnet, rnet, onet = detect_face.create_mtcnn(sess, '../data/')
     
-    minsize = 80 # minimum size of face
+    minsize = 20 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
     factor = 0.709 # scale factor
 
@@ -67,68 +65,61 @@ def main(args):
     with open(bounding_boxes_filename, "w") as text_file:
         nrof_images_total = 0
         nrof_successfully_aligned = 0
-        nrof_images = len(os.listdir(os.path.expanduser(input_dir)))
-        # if args.random_order:
-          #  random.shuffle(folder)
-        for i in range(nrof_images):
-            output_folder_dir = os.path.join(output_dir, os.path.splitext(os.path.split(folder[i])[1])[0])
-            if not os.path.exists(output_folder_dir):
-                os.makedirs(output_folder_dir)
-            nrof_images_total += 1
-            filename = os.path.splitext(os.path.split(folder[i])[1])[0]
-            output_filename = os.path.join(output_folder_dir, filename)
-            print(output_filename)
-            if not os.path.exists(output_filename):
-                try:
-                    img = misc.imread(folder[i])
-                except (IOError, ValueError, IndexError) as e:
-                    errorMessage = '{}: {}'.format(folder[i], e)
-                    text_file.write('%s \n' % (errorMessage))
-                    print(errorMessage)
-                else:
-                    if img.ndim<2:
-                        text_file.write('Unable to align %s\n' % (folder[i]))
-                        shutil.rmtree(output_folder_dir)
-                        print('Unable to align "%s"' % (folder[i]))
-                        continue
-                    if img.ndim == 2:
-                        img = facenet.to_rgb(img)
-                    img = img[:,:,0:3]
-    
-                    bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
-                    nrof_faces = bounding_boxes.shape[0]
-                    if nrof_faces>0:
-                        det = bounding_boxes[:,0:4]
-                        img_size = np.asarray(img.shape)[0:2]
-                        if nrof_faces >= 1:
-                            for j in range(nrof_faces):
-                                    # bounding_box_size = (det[:,2]-det[:,0])*(det[:,3]-det[:,1])
-                                    # img_center = img_size / 2
-                                    # offsets = np.vstack([ (det[:,0]+det[:,2])/2-img_center[1], (det[:,1]+det[:,3])/2-img_center[0] ])
-                                    # offset_dist_squared = np.sum(np.power(offsets,2.0),0)
-                                    # index = np.argmax(bounding_box_size-offset_dist_squared*2.0) # some extra weight on the centering
-                                    # index = i
-                                pos = det[j,:]
-                                pos = np.squeeze(pos)
-                                bb = np.zeros(4, dtype=np.int32)
-                                bb[0] = np.maximum(pos[0]-args.margin/2, 0)
-                                bb[1] = np.maximum(pos[1]-args.margin/2, 0)
-                                bb[2] = np.minimum(pos[2]+args.margin/2, img_size[1])
-                                bb[3] = np.minimum(pos[3]+args.margin/2, img_size[0])
-                                cropped = img[bb[1]:bb[3], bb[0]:bb[2], :]
-                                scaled = misc.imresize(cropped, (args.image_size, args.image_size), interp='bilinear')
-                                nrof_successfully_aligned += 1
-                                filename = os.path.splitext(os.path.split(folder[i])[1])[0]
-                                output_filename = os.path.join(output_folder_dir, filename + '_' + str(j).zfill(4) + '.png')
-                                    # output_filename = filename + str(i) +'.png'
-                                    # print(output_filename)
-                                misc.imsave(output_filename, scaled)
-                                text_file.write('%s %d %d %d %d\n' % (output_filename, bb[0], bb[1], bb[2], bb[3]))
-                                    # det = bounding_boxes[:, 0:4]
+        if args.random_order:
+            random.shuffle(dataset)
+        for cls in dataset:
+            output_class_dir = os.path.join(output_dir, cls.name)
+            if not os.path.exists(output_class_dir):
+                os.makedirs(output_class_dir)
+                if args.random_order:
+                    random.shuffle(cls.image_paths)
+            for image_path in cls.image_paths:
+                nrof_images_total += 1
+                filename = os.path.splitext(os.path.split(image_path)[1])[0]
+                output_filename = os.path.join(output_class_dir, filename+'.png')
+                print(image_path)
+                if not os.path.exists(output_filename):
+                    try:
+                        img = misc.imread(image_path)
+                        #img = ndimage.imread(image_path)
+                    except (IOError, ValueError, IndexError) as e:
+                        errorMessage = '{}: {}'.format(image_path, e)
+                        print(errorMessage)
                     else:
-                        text_file.write('Unable to align %s\n' % (folder[i]))
-                        shutil.rmtree(output_folder_dir)
-                        print('Unable to align "%s"' % folder[i])
+                        if img.ndim<2:
+                            print('Unable to align "%s"' % image_path)
+                            text_file.write('%s\n' % (output_filename))
+                            continue
+                        if img.ndim == 2:
+                            img = facenet.to_rgb(img)
+                        img = img[:,:,0:3]
+    
+                        bounding_boxes, _ = detect_face.detect_face(img, minsize, pnet, rnet, onet, threshold, factor)
+                        nrof_faces = bounding_boxes.shape[0]
+                        if nrof_faces>0:
+                            det = bounding_boxes[:,0:4]
+                            img_size = np.asarray(img.shape)[0:2]
+                            if nrof_faces>1:
+                                bounding_box_size = (det[:,2]-det[:,0])*(det[:,3]-det[:,1])
+                                img_center = img_size / 2
+                                offsets = np.vstack([ (det[:,0]+det[:,2])/2-img_center[1], (det[:,1]+det[:,3])/2-img_center[0] ])
+                                offset_dist_squared = np.sum(np.power(offsets,2.0),0)
+                                index = np.argmax(bounding_box_size-offset_dist_squared*2.0) # some extra weight on the centering
+                                det = det[index,:]
+                            det = np.squeeze(det)
+                            bb = np.zeros(4, dtype=np.int32)
+                            bb[0] = np.maximum(det[0]-args.margin/2, 0)
+                            bb[1] = np.maximum(det[1]-args.margin/2, 0)
+                            bb[2] = np.minimum(det[2]+args.margin/2, img_size[1])
+                            bb[3] = np.minimum(det[3]+args.margin/2, img_size[0])
+                            cropped = img[bb[1]:bb[3],bb[0]:bb[2],:]
+                            scaled = misc.imresize(cropped, (args.image_size, args.image_size), interp='bilinear')
+                            nrof_successfully_aligned += 1
+                            misc.imsave(output_filename, scaled)
+                            text_file.write('%s %d %d %d %d\n' % (output_filename, bb[0], bb[1], bb[2], bb[3]))
+                        else:
+                            print('Unable to align "%s"' % image_path)
+                            text_file.write('%s\n' % (output_filename))
                             
     print('Total number of images: %d' % nrof_images_total)
     print('Number of successfully aligned images: %d' % nrof_successfully_aligned)
@@ -143,6 +134,8 @@ def parse_arguments(argv):
         help='Image size (height, width) in pixels.', default=182)
     parser.add_argument('--margin', type=int,
         help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
+    parser.add_argument('--random_order', 
+        help='Shuffles the order of images to enable alignment using multiple processes.', action='store_true')
     parser.add_argument('--gpu_memory_fraction', type=float,
         help='Upper bound on the amount of GPU memory that will be used by the process.', default=1.0)
     return parser.parse_args(argv)
