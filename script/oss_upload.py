@@ -21,12 +21,12 @@ from oss2.models import PartInfo
 #   http://oss-cn-hangzhou.aliyuncs.com
 #   https://oss-cn-hangzhou.aliyuncs.com
 # 分别以HTTP、HTTPS协议访问。
-oss_internal = 'http://oss-cn-hangzhou-internal.aliyuncs.com'
-oss_external = 'http://oss-cn-hangzhou.aliyuncs.com'
+oss_internal = ''
+oss_external = ''
 
-access_key_id = os.getenv('OSS_TEST_ACCESS_KEY_ID', 'cuRku5y77efvgqHn')
-access_key_secret = os.getenv('OSS_TEST_ACCESS_KEY_SECRET', '195yj5K996wrGTQsoa6f3Pwbuk1CwE')
-bucket_name = os.getenv('OSS_TEST_BUCKET', 'haitajia2015log')
+access_key_id = os.getenv('OSS_TEST_ACCESS_KEY_ID', '')
+access_key_secret = os.getenv('OSS_TEST_ACCESS_KEY_SECRET', '')
+bucket_name = os.getenv('OSS_TEST_BUCKET', '')
 endpoint = os.getenv('OSS_TEST_ENDPOINT', oss_internal)
 
 
